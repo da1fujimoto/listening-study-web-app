@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AudioPlayer from './AudioPlayer'
 import MarkdownViewer from './MarkdownViewer'
+import MemorizedCheckbox from './MemorizedCheckbox'
 
 type Props = {
   problem: {
@@ -12,6 +13,7 @@ type Props = {
     problemContent: string
     answerContent: string
     audioUrl: string
+    isMemorized: boolean
   }
   nextId: number | null
   mode: 'seq' | 'random'
@@ -29,14 +31,17 @@ export default function PracticeSession({ problem, nextId, mode }: Props) {
 
   return (
     <div className="max-w-md mx-auto p-4 pb-20 space-y-6">
-      <header className="flex justify-between items-center">
+      <header className="flex justify-between items-center gap-4">
         <h1 className="text-lg font-bold text-gray-800 truncate">{problem.title}</h1>
-        <button 
-          onClick={() => router.push('/')}
-          className="text-sm text-gray-500 hover:text-gray-800"
-        >
-          Exit
-        </button>
+        <div className="flex items-center gap-3">
+          <MemorizedCheckbox id={problem.id} isMemorized={problem.isMemorized} />
+          <button 
+            onClick={() => router.push('/')}
+            className="text-sm text-gray-500 hover:text-gray-800"
+          >
+            Exit
+          </button>
+        </div>
       </header>
 
       <AudioPlayer src={problem.audioUrl} />

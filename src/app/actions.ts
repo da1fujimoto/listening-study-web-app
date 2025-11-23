@@ -135,8 +135,35 @@ export async function moveProblemDown(formData: FormData) {
     orderBy: { order: 'asc' },
   })
 
-  const currentIndex = problems.findIndex(p => p.id === id)
+  const currentIndex = problems.findIndex((p: any) => p.id === id)
   if (currentIndex < problems.length - 1 && currentIndex !== -1) {
     await swapProblemOrder(problems[currentIndex].id, problems[currentIndex + 1].id)
   }
+}
+
+export async function toggleMemorized(id: number) {
+  const problem = await prisma.problem.findUnique({
+    where: { id },
+  })
+
+  if (!problem) {
+    throw new Error('Problem not found')
+  }
+
+  await prisma.problem.update({
+    where: { id },
+    data: { isMemorized: !problem.isMemorized },
+  })
+
+  revalidatePath('/admin')
+  revalidatePath('/')
+  revalidatePath('/practice')
+}
+
+export async function toggleMemorizedAction(formData: FormData) {
+  const id = parseInt(formData.get('id') as string)
+  if (isNaN(id)) {
+    throw new Error('Invalid ID')
+  }
+  await toggleMemorized(id)
 }

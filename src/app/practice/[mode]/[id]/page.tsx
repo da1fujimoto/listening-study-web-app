@@ -36,15 +36,18 @@ export default async function PracticePage({ params }: Props) {
   // Determine Next ID
   let nextId: number | null = null
   const allProblems = await getProblems() // Already sorted by order ASC
+  
+  // Filter out memorized problems for navigation
+  const activeProblems = allProblems.filter((p: any) => !p.isMemorized)
 
   if (mode === 'seq') {
-    const currentIndex = allProblems.findIndex(p => p.id === problemId)
-    if (currentIndex !== -1 && currentIndex < allProblems.length - 1) {
-      nextId = allProblems[currentIndex + 1].id
+    const currentIndex = activeProblems.findIndex((p: any) => p.id === problemId)
+    if (currentIndex !== -1 && currentIndex < activeProblems.length - 1) {
+      nextId = activeProblems[currentIndex + 1].id
     }
   } else if (mode === 'random') {
     // Pick a random ID that is NOT the current one
-    const otherProblems = allProblems.filter(p => p.id !== problemId)
+    const otherProblems = activeProblems.filter((p: any) => p.id !== problemId)
     if (otherProblems.length > 0) {
       const randomIndex = Math.floor(Math.random() * otherProblems.length)
       nextId = otherProblems[randomIndex].id
@@ -61,7 +64,8 @@ export default async function PracticePage({ params }: Props) {
         title: problem.title,
         problemContent,
         answerContent,
-        audioUrl: `/sound/${problem.audioFile}`
+        audioUrl: `/sound/${problem.audioFile}`,
+        isMemorized: problem.isMemorized,
       }}
       nextId={nextId}
       mode={mode as 'seq' | 'random'}

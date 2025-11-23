@@ -1,10 +1,13 @@
 import { getProblems } from '@/app/actions'
 import Link from 'next/link'
+import MemorizedCheckbox from '@/components/MemorizedCheckbox'
 
 export default async function Home() {
   const problems = await getProblems() // Already sorted by order ASC
-
-  const startId = problems.length > 0 ? problems[0].id : null
+  
+  // Filter out memorized problems for start button
+  const activeProblems = problems.filter((p: any) => !p.isMemorized)
+  const startId = activeProblems.length > 0 ? activeProblems[0].id : null
 
   return (
     <div className="max-w-md mx-auto p-4 min-h-screen flex flex-col">
@@ -51,15 +54,19 @@ export default async function Home() {
             {problems.length === 0 ? (
               <div className="p-4 text-center text-gray-500">No problems added yet.</div>
             ) : (
-              problems.map(p => (
-                <Link
-                  key={p.id}
-                  href={`/practice/seq/${p.id}`}
-                  className="block p-4 hover:bg-gray-50 transition-colors flex justify-between items-center"
-                >
-                  <span className="text-gray-800">{p.title}</span>
-                  <span className="text-gray-400 text-sm">#{p.id}</span>
-                </Link>
+              problems.map((p: any) => (
+                <div key={p.id} className="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center">
+                  <Link
+                    href={`/practice/seq/${p.id}`}
+                    className="flex-1 flex justify-between items-center"
+                  >
+                    <span className={`text-gray-800 ${p.isMemorized ? 'line-through text-gray-400' : ''}`}>{p.title}</span>
+                    <span className="text-gray-400 text-sm">#{p.id}</span>
+                  </Link>
+                  <div className="ml-4">
+                    <MemorizedCheckbox id={p.id} isMemorized={p.isMemorized} />
+                  </div>
+                </div>
               ))
             )}
           </div>

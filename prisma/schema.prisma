@@ -17,5 +17,6 @@ model Problem {
   answerFile  String
   audioFile   String
   order       Int      @default(0)
+  isMemorized Boolean  @default(false)
   createdAt   DateTime @default(now())
 }

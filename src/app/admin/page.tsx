@@ -2,6 +2,7 @@ import { getFiles, getProblems, deleteProblem } from '@/app/actions'
 import ProblemForm from '@/components/ProblemForm'
 import DeleteProblemButton from '@/components/DeleteProblemButton'
 import ReorderButtons from '@/components/ReorderButtons'
+import MemorizedCheckbox from '@/components/MemorizedCheckbox'
 import Link from 'next/link'
 
 export default async function AdminPage() {
@@ -39,12 +40,13 @@ export default async function AdminPage() {
                   isFirst={index === 0} 
                   isLast={index === problems.length - 1} 
                 />
-                <div>
-                  <span className="font-medium">{p.title}</span>
+                <div className="flex-1">
+                  <span className={`font-medium ${p.isMemorized ? 'line-through text-gray-400' : ''}`}>{p.title}</span>
                   <div className="text-xs text-gray-500 mt-1">
                     P: {p.problemFile} | A: {p.answerFile} | S: {p.audioFile}
                   </div>
                 </div>
+                <MemorizedCheckbox id={p.id} isMemorized={p.isMemorized} />
               </div>
               <DeleteProblemButton id={p.id} />
             </li>
