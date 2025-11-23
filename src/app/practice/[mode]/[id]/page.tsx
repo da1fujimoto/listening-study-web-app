@@ -35,25 +35,22 @@ export default async function PracticePage({ params }: Props) {
 
   // Determine Next ID
   let nextId: number | null = null
-  const allProblems = await getProblems() // Ordered by createdAt desc
-  // Sort by ID for sequential logic
-  const sortedProblems = [...allProblems].sort((a, b) => a.id - b.id)
+  const allProblems = await getProblems() // Already sorted by order ASC
 
   if (mode === 'seq') {
-    const currentIndex = sortedProblems.findIndex(p => p.id === problemId)
-    if (currentIndex !== -1 && currentIndex < sortedProblems.length - 1) {
-      nextId = sortedProblems[currentIndex + 1].id
+    const currentIndex = allProblems.findIndex(p => p.id === problemId)
+    if (currentIndex !== -1 && currentIndex < allProblems.length - 1) {
+      nextId = allProblems[currentIndex + 1].id
     }
   } else if (mode === 'random') {
     // Pick a random ID that is NOT the current one
-    const otherProblems = sortedProblems.filter(p => p.id !== problemId)
+    const otherProblems = allProblems.filter(p => p.id !== problemId)
     if (otherProblems.length > 0) {
       const randomIndex = Math.floor(Math.random() * otherProblems.length)
       nextId = otherProblems[randomIndex].id
     } else {
-        // Only 1 problem exists, so next is same? Or null?
-        // If random, maybe just loop same?
-        nextId = problemId
+      // Only 1 problem exists
+      nextId = problemId
     }
   }
 

@@ -16,5 +16,6 @@ model Problem {
   problemFile String
   answerFile  String
   audioFile   String
+  order       Int      @default(0)
   createdAt   DateTime @default(now())
 }

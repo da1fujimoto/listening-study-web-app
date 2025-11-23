@@ -1,6 +1,7 @@
 import { getFiles, getProblems, deleteProblem } from '@/app/actions'
 import ProblemForm from '@/components/ProblemForm'
 import DeleteProblemButton from '@/components/DeleteProblemButton'
+import ReorderButtons from '@/components/ReorderButtons'
 import Link from 'next/link'
 
 export default async function AdminPage() {
@@ -30,12 +31,19 @@ export default async function AdminPage() {
       <div>
         <h2 className="text-xl font-semibold mb-4">Existing Problems</h2>
         <ul className="space-y-2">
-          {problems.map((p: any) => (
+          {problems.map((p: any, index: number) => (
             <li key={p.id} className="border p-3 rounded flex justify-between items-center bg-gray-50">
-              <div>
-                <span className="font-medium">{p.title}</span>
-                <div className="text-xs text-gray-500 mt-1">
-                  P: {p.problemFile} | A: {p.answerFile} | S: {p.audioFile}
+              <div className="flex items-center gap-3 flex-1">
+                <ReorderButtons 
+                  id={p.id} 
+                  isFirst={index === 0} 
+                  isLast={index === problems.length - 1} 
+                />
+                <div>
+                  <span className="font-medium">{p.title}</span>
+                  <div className="text-xs text-gray-500 mt-1">
+                    P: {p.problemFile} | A: {p.answerFile} | S: {p.audioFile}
+                  </div>
                 </div>
               </div>
               <DeleteProblemButton id={p.id} />

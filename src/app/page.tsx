@@ -2,14 +2,9 @@ import { getProblems } from '@/app/actions'
 import Link from 'next/link'
 
 export default async function Home() {
-  const problems = await getProblems()
+  const problems = await getProblems() // Already sorted by order ASC
 
-  // For sequential mode, we start from the first problem (if any)
-  const firstProblemId = problems.length > 0 ? problems[problems.length - 1].id : null // Assuming oldest is first? Or sort by ID?
-  // getProblems sorts by createdAt desc. Sequential usually means oldest first or by ID.
-  // Let's sort by ID asc for sequential.
-  const sortedProblems = [...problems].sort((a, b) => a.id - b.id)
-  const startId = sortedProblems.length > 0 ? sortedProblems[0].id : null
+  const startId = problems.length > 0 ? problems[0].id : null
 
   return (
     <div className="max-w-md mx-auto p-4 min-h-screen flex flex-col">
@@ -53,14 +48,13 @@ export default async function Home() {
             </Link>
           </div>
           <div className="divide-y max-h-[400px] overflow-y-auto">
-            {sortedProblems.length === 0 ? (
+            {problems.length === 0 ? (
               <div className="p-4 text-center text-gray-500">No problems added yet.</div>
             ) : (
-              sortedProblems.map(p => (
+              problems.map(p => (
                 <Link
                   key={p.id}
-                  href={`/practice/seq/${p.id}`} // Clicking a problem starts sequential from there? Or just that problem?
-                  // Requirement: "Select from list and start sequential from there"
+                  href={`/practice/seq/${p.id}`}
                   className="block p-4 hover:bg-gray-50 transition-colors flex justify-between items-center"
                 >
                   <span className="text-gray-800">{p.title}</span>

@@ -18,7 +18,7 @@ export async function getFiles(type: 'problem' | 'answer' | 'sound') {
 
 export async function getProblems() {
   return await prisma.problem.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: { order: 'asc' },
   })
 }
 
@@ -32,12 +32,21 @@ export async function createProblem(formData: FormData) {
     throw new Error('Missing required fields')
   }
 
+  // Get the highest order value
+  const maxOrderProblem = await prisma.problem.findFirst({
+    orderBy: { order: 'desc' },
+    select: { order: true },
+  })
+
+  const newOrder = (maxOrderProblem?.order ?? -1) + 1
+
   await prisma.problem.create({
     data: {
       title,
       problemFile,
       answerFile,
       audioFile,
+      order: newOrder,
     },
   })
 
@@ -72,4 +81,62 @@ export async function deleteProblemAction(formData: FormData) {
     throw new Error('Invalid ID')
   }
   await deleteProblem(id)
+}
+
+export async function swapProblemOrder(id1: number, id2: number) {
+  const [problem1, problem2] = await Promise.all([
+    prisma.problem.findUnique({ where: { id: id1 } }),
+    prisma.problem.findUnique({ where: { id: id2 } }),
+  ])
+
+  if (!problem1 || !problem2) {
+    throw new Error('Problem not found')
+  }
+
+  // Swap order values
+  await Promise.all([
+    prisma.problem.update({
+      where: { id: id1 },
+      data: { order: problem2.order },
+    }),
+    prisma.problem.update({
+      where: { id: id2 },
+      data: { order: problem1.order },
+    }),
+  ])
+
+  revalidatePath('/admin')
+  revalidatePath('/')
+}
+
+export async function moveProblemUp(formData: FormData) {
+  const id = parseInt(formData.get('id') as string)
+  if (isNaN(id)) {
+    throw new Error('Invalid ID')
+  }
+
+  const problems = await prisma.problem.findMany({
+    orderBy: { order: 'asc' },
+  })
+
+  const currentIndex = problems.findIndex(p => p.id === id)
+  if (currentIndex > 0) {
+    await swapProblemOrder(problems[currentIndex].id, problems[currentIndex - 1].id)
+  }
+}
+
+export async function moveProblemDown(formData: FormData) {
+  const id = parseInt(formData.get('id') as string)
+  if (isNaN(id)) {
+    throw new Error('Invalid ID')
+  }
+
+  const problems = await prisma.problem.findMany({
+    orderBy: { order: 'asc' },
+  })
+
+  const currentIndex = problems.findIndex(p => p.id === id)
+  if (currentIndex < problems.length - 1 && currentIndex !== -1) {
+    await swapProblemOrder(problems[currentIndex].id, problems[currentIndex + 1].id)
+  }
 }
